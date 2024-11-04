@@ -93,7 +93,7 @@
         }
     </style>
 </head>
-<link rel="manifest" href="/manifest.json">
+<link rel="manifest" href="./manifest.json">
 <body>
     <div class="container">
         <h1>Calculateur de Liberté de la Presse</h1>
@@ -264,7 +264,7 @@
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-      navigator.serviceWorker.register('/sw.js').then(function(registration) {
+      navigator.serviceWorker.register('./sw.js').then(function(registration) {
         console.log('Service Worker enregistré avec succès :', registration);
       }, function(error) {
         console.log('Échec de l\'enregistrement du Service Worker :', error);
