@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur de Liberté de la Presse</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .question {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .country-answers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        .country-column {
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            display: none;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .scores {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .score-item {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .color-selection {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .color-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        .color-select {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<link rel="manifest" href="/manifest.json">
+<body>
+    <div class="container">
+        <h1>Calculateur de Liberté de la Presse</h1>
+        <div id="questions"></div>
+        <button onclick="calculateScores()">Calculer les scores</button>
+        <div class="results" id="results">
+            <h2 style="text-align: center;">Calcul du score de liberté de la presse</h2>
+            <div class="scores">
+                <div class="score-item" id="norway-score">Norvège : 0 points</div>
+                <div class="score-item" id="greece-score">Grèce : 0 points</div>
+            </div>
+
+            <div class="color-selection">
+                <h3>Choisissez la couleur du pays en fonction de son indice</h3>
+                <div class="color-options">
+                    <div class="color-select">
+                        <select id="norway-color" onchange="applyColor('norway')" style="font-size: 16px;">
+                            <option value="">Norvège : choisir une plage</option>
+                            <option value="#90EE90">[85 ; 100 points] : bonne situation (vert)</option>
+                            <option value="#FFD700">[70 ; 85 points] : situation plutôt bonne (jaune)</option>
+                            <option value="#FFA500">[55 ; 70 points] : situation problématique (orange clair)</option>
+                            <option value="#FF8C00">[40 ; 55 points] : situation difficile (orange sombre)</option>
+                            <option value="#8B0000">[0 ; 40 points] : situation très grave (rouge sombre)</option>
+                        </select>
+                    </div>
+                    <div class="color-select">
+                        <select id="greece-color" onchange="applyColor('greece')" style="font-size: 16px;">
+                            <option value="">Grèce : choisir une plage</option>
+                            <option value="#90EE90">[85 ; 100 points] : bonne situation (vert)</option>
+                            <option value="#FFD700">[70 ; 85 points] : situation plutôt bonne (jaune)</option>
+                            <option value="#FFA500">[55 ; 70 points] : situation problématique (orange clair)</option>
+                            <option value="#FF8C00">[40 ; 55 points] : situation difficile (orange sombre)</option>
+                            <option value="#8B0000">[0 ; 40 points] : situation très grave (rouge sombre)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                text: "Des journalistes ont-ils été agressés au cours des 12 derniers mois ?",
+                options: [
+                    { text: "Oui", points: 8 },
+                    { text: "Non", points: 14 }
+                ]
+            },
+            {
+                text: "Globalement, les médias sont-ils libres de faire des révélations ?",
+                options: [
+                    { text: "Oui", points: 14 },
+                    { text: "Non", points: 9 }
+                ]
+            },
+            {
+                text: "Contexte légal - La liberté d'expression et de la presse est-elle garantie légalement ?",
+                options: [
+                    { text: "Oui", points: 14 },
+                    { text: "Non", points: 10 }
+                ]
+            },
+            {
+                text: "Quelle influence le gouvernement a-t-il dans les rédactions des médias publics ?",
+                options: [
+                    { text: "Absolument aucune influence", points: 14 },
+                    { text: "Peu d'influence", points: 13 },
+                    { text: "Une influence notable", points: 11 },
+                    { text: "Une très forte influence", points: 10 }
+                ]
+            },
+            {
+                text: "Existe-t-il des médias indépendants, ne subissant aucune contrainte exercée par les propriétaires ou le pouvoir politique ?",
+                options: [
+                    { text: "Oui, beaucoup", points: 14 },
+                    { text: "Oui, plutôt", points: 12 },
+                    { text: "Très peu", points: 9 },
+                    { text: "Non, pas du tout", points: 6 }
+                ]
+            },
+            {
+                text: "Les citoyens ont-ils généralement un niveau élevé de confiance dans la crédibilité des médias d'information et de leur contenu ?",
+                options: [
+                    { text: "Oui, tout à fait", points: 15 },
+                    { text: "Oui, plutôt", points: 12 },
+                    { text: "Non, assez peu", points: 7 }
+                ]
+            },
+            {
+                text: "Les journalistes sont-ils surveillés et/ou espionnés par les autorités ?",
+                options: [
+                    { text: "Jamais", points: 12 },
+                    { text: "Rarement", points: 9 },
+                    { text: "Régulièrement", points: 4 },
+                    { text: "Systématiquement", points: 0 }
+                ]
+            }
+        ];
+
+        function createQuestions() {
+            const questionsDiv = document.getElementById('questions');
+            questions.forEach((q, index) => {
+                const questionHTML = `
+                    <div class="question">
+                        <h3>Question ${index + 1}: ${q.text}</h3>
+                        <div class="country-answers">
+                            <div class="country-column">
+                                <label>Norvège:</label>
+                                <select id="norway-${index}">
+                                    ${q.options.map((opt, optIndex) => 
+                                        `<option value="${optIndex}">${opt.text}</option>`
+                                    ).join('')}
+                                </select>
+                            </div>
+                            <div class="country-column">
+                                <label>Grèce:</label>
+                                <select id="greece-${index}">
+                                    ${q.options.map((opt, optIndex) => 
+                                        `<option value="${optIndex}">${opt.text}</option>`
+                                    ).join('')}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                questionsDiv.innerHTML += questionHTML;
+            });
+        }
+
+        function calculateScores() {
+            let norwayScore = 0;
+            let greeceScore = 0;
+
+            questions.forEach((q, index) => {
+                const norwayAnswer = document.getElementById(`norway-${index}`).value;
+                const greeceAnswer = document.getElementById(`greece-${index}`).value;
+
+                norwayScore += q.options[norwayAnswer].points;
+                greeceScore += q.options[greeceAnswer].points;
+            });
+
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('norway-score').textContent = `Norvège : ${norwayScore} points`;
+            document.getElementById('greece-score').textContent = `Grèce : ${greeceScore} points`;
+
+            // Réinitialiser les sélections de couleur
+            document.getElementById('norway-color').value = '';
+            document.getElementById('greece-color').value = '';
+            document.getElementById('norway-score').style.backgroundColor = '#e9ecef';
+            document.getElementById('greece-score').style.backgroundColor = '#e9ecef';
+        }
+
+        function applyColor(country) {
+            const color = document.getElementById(`${country}-color`).value;
+            const scoreElement = document.getElementById(`${country}-score`);
+            scoreElement.style.backgroundColor = color;
+            if (color === '#8B0000') {
+                scoreElement.style.color = 'white';
+            } else {
+                scoreElement.style.color = 'black';
+            }
+        }
+
+        // Initialiser le questionnaire
+        createQuestions();
+    </script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/sw.js').then(function(registration) {
+        console.log('Service Worker enregistré avec succès :', registration);
+      }, function(error) {
+        console.log('Échec de l\'enregistrement du Service Worker :', error);
+      });
+    });
+  }
+</script>
+</body>
+</html>
