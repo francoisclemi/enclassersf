@@ -27,3 +27,32 @@ self.addEventListener('fetch', function(event) {
     )
   );
 });
+// ajout du bouton d'installation de l'appli
+
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Empêche l'affichage automatique de la boîte de dialogue d'installation
+    e.preventDefault();
+    // Sauvegarde l'événement pour l'utiliser plus tard
+    deferredPrompt = e;
+    // Affiche le bouton d'installation
+    const installButton = document.getElementById('installButton');
+    installButton.style.display = 'block';
+
+    installButton.addEventListener('click', () => {
+        // Cache le bouton
+        installButton.style.display = 'none';
+        // Affiche la boîte de dialogue d'installation
+        deferredPrompt.prompt();
+        // Attend la réponse de l'utilisateur
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('L\'utilisateur a accepté l\'installation');
+            } else {
+                console.log('L\'utilisateur a refusé l\'installation');
+            }
+            deferredPrompt = null;
+        });
+    });
+});
