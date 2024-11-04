@@ -1,9 +1,9 @@
 const CACHE_NAME = 'pwa-calculateur-presse';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/styles.css', // Si tu as un fichier CSS séparé
-  '/script.js' // Si tu as un fichier JavaScript séparé
+  './',
+  './index.html',
+  './styles.css', // Si tu as un fichier CSS séparé
+  './script.js' // Si tu as un fichier JavaScript séparé
 ];
 
 self.addEventListener('install', function(event) {
